@@ -1,0 +1,139 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realify - Fake News Detection</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        .score-bar,
+        .factor-bar {
+            height: 20px;
+            background-color: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .score-fill {
+            height: 100%;
+            background-color: #4299e1;
+            border-radius: 10px;
+        }
+
+        .factor-fill {
+            height: 100%;
+            background-color: #48bb78;
+            border-radius: 10px;
+        }
+
+        .auth-form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+    <header class="bg-blue-600 text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Realify</h1>
+
+            <div id="auth-buttons" class="flex space-x-2">
+                <button id="login-button"
+                    class="bg-white text-blue-600 px-4 py-2 rounded hover:bg-blue-100 transition">Login</button>
+                <button id="signup-button"
+                    class="bg-blue-500 text-white px-4 py-2 rounded border border-white hover:bg-blue-700 transition">Sign
+                    Up</button>
+            </div>
+
+            <div id="user-profile" class="hidden flex items-center space-x-4">
+                <span id="username-display"></span>
+                <button id="logout-button"
+                    class="bg-blue-500 text-white px-4 py-2 rounded border border-white hover:bg-blue-700 transition">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-6">
+        <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+            <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 id="auth-modal-title" class="text-xl font-bold">Sign In</h2>
+                    <button id="close-modal" class="text-gray-500 hover:text-gray-700">&times;</button>
+                </div>
+
+                <form id="login-form" class="auth-form">
+                    <div class="mb-4">
+                        <label for="login-email" class="block text-gray-700 mb-2">Email</label>
+                        <input type="email" id="login-email" class="w-full px-3 py-2 border rounded-lg" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="login-password" class="block text-gray-700 mb-2">Password</label>
+                        <input type="password" id="login-password" class="w-full px-3 py-2 border rounded-lg" required>
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">Sign
+                        In</button>
+                    <p id="login-error" class="text-red-500 mt-2 hidden"></p>
+                </form>
+
+                <form id="signup-form" class="auth-form hidden">
+                    <div class="mb-4">
+                        <label for="signup-username" class="block text-gray-700 mb-2">Username</label>
+                        <input type="text" id="signup-username" class="w-full px-3 py-2 border rounded-lg" required
+                            minlength="3">
+                    </div>
+                    <div class="mb-4">
+                        <label for="signup-email" class="block text-gray-700 mb-2">Email</label>
+                        <input type="email" id="signup-email" class="w-full px-3 py-2 border rounded-lg" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="signup-password" class="block text-gray-700 mb-2">Password</label>
+                        <input type="password" id="signup-password" class="w-full px-3 py-2 border rounded-lg" required
+                            minlength="6">
+                    </div>
+                    <div class="mb-4">
+                        <label for="signup-confirm" class="block text-gray-700 mb-2">Confirm Password</label>
+                        <input type="password" id="signup-confirm" class="w-full px-3 py-2 border rounded-lg" required>
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">Create
+                        Account</button>
+                    <p id="signup-error" class="text-red-500 mt-2 hidden"></p>
+                </form>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">Verify Article</h2>
+            <form id="verify-form">
+                <div class="mb-4">
+                    <label for="article-url" class="block text-gray-700 mb-2">Article URL (optional)</label>
+                    <input type="url" id="article-url" class="w-full px-3 py-2 border rounded-lg"
+                        placeholder="https://example.com/article">
+                </div>
+                <div class="mb-4">
+                    <label for="article-text" class="block text-gray-700 mb-2">Article Text</label>
+                    <textarea id="article-text" class="w-full px-3 py-2 border rounded-lg" rows="6"
+                        placeholder="Paste article content here..."></textarea>
+                </div>
+                <button type="submit"
+                    class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">Analyze</button>
+            </form>
+        </div>
+
+        <div id="result" class="bg-white rounded-lg shadow-md p-6 hidden"></div>
+
+        <div id="history-section" class="bg-white rounded-lg shadow-md p-6 mt-6 hidden">
+            <h2 class="text-xl font-bold mb-4">Your Verification History</h2>
+            <div id="history-list" class="space-y-4"></div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
